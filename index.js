@@ -115,7 +115,7 @@ function factory ($, window, document) {
    * Listen to user input and validate the form accordingly.
    *
    * @param {HTMLFormElement} form
-   * @param {array<field>} fields An empty array to be filled with `field` objects
+   * @param {array<field>} fields
    * @param {Object} settings
    * @returns {undefined}
    * @private
