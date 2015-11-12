@@ -3,6 +3,8 @@ require('../index')
 var $ = require('jquery')
 var validator = require('validator')
 
+window.$ = $
+
 $('form').validity({
   onSubmit: function (event, form) {
     setTimeout(function () {

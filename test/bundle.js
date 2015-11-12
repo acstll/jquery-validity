@@ -13,14 +13,15 @@
 /*
   TODO
   - remove `onSubmit` and emit `validity.valid` and `validity.invalid` events
-  - handle groups (radio, checkboxes)
-  - set click listener for groups
   - pass `name` to validator fns
-  - document public/private functions
+  - document public and private functions
 */
 
 function factory ($, window, document) {
   var fields = []
+
+  // Testing (maybe expose this somehow?)
+  window.__fields = fields
 
   $.fn.validity = function (options) {
     var settings = $.extend({}, $.fn.validity.defaults, options)
@@ -38,6 +39,7 @@ function factory ($, window, document) {
   $.fn.validity.defaults = {
     attributeName: 'data-validators',
     requiredMessage: 'This field is required',
+    parentSelector: 'p', // TODO allow function or string
     timeout: 1000, // if `false`, no "live" validation
     onSubmit: null,
     validateOnBlur: true,
@@ -47,22 +49,36 @@ function factory ($, window, document) {
   function set (form, fields, settings) {
     $(form)
       .find('input, select, textarea')
-      .each(parse)
+      .each(createField)
 
-    function parse (index, el) {
+    function createField (index, el) {
       // Skip input of type `submit`
       if (/submit/.test(el.type)) {
         return
       }
 
-      // TODO handle groups
-
       var $el = $(el)
+      var $els, $parent, $error
+
+      if (el.type === 'radio' || el.type === 'checkbox') {
+        $els = $el.closest(form).find('[name="' + el.name + '"]')
+      } else {
+        $els = $el
+      }
+
+      if ($els.length > 1) {
+        $parent = $el.closest(settings.parentSelector)
+        $error = $el.closest(settings.parentSelector).find('.error')
+      } else {
+        $parent = $el.parent().not(form)
+        $error = $el.next('.error')
+      }
+
       var field = {
         el: el,
-        $els: [$el], // intended for groups
-        $parent: $el.parent().not(form),
-        $error: $el.next('.error'),
+        $els: $els, // intended for groups
+        $parent: $parent,
+        $error: $error,
         validators: getValidators(el, settings),
         isValid: true
       }
@@ -78,16 +94,6 @@ function factory ($, window, document) {
     }, settings.timeout)
 
     $(form)
-      .on('click', function onClick (event) {
-        // handle only `radio` and `checkbox`
-        console.log('click')
-      })
-      .on('input', function onInput (event) {
-        var el = event.target
-        if (el.__validity && settings.timeout !== false) {
-          handleDelayed(el.__validity)
-        }
-      })
       .on('submit', function onSubmit (event) {
         var firstErrorIndex = validateAll(fields)
 
@@ -99,10 +105,20 @@ function factory ($, window, document) {
           settings.onSubmit(event, form)
         }
       })
+      .on('click', '[type="radio"], [type="checkbox"]', onInput)
+      .on('input', onInput)
 
     fields.forEach(function (field) {
       $(field.el).on('blur', onBlur)
     })
+
+    function onInput (event) {
+      var el = event.target
+
+      if (el.__validity && settings.timeout !== false) {
+        handleDelayed(el.__validity)
+      }
+    }
 
     function onBlur (event) {
       var el = event.target
@@ -114,7 +130,6 @@ function factory ($, window, document) {
   }
 }
 
-// TODO document
 function validateAll (fields) {
   var index, isValid
   fields.forEach(handle)
@@ -128,7 +143,7 @@ function validateAll (fields) {
 }
 
 function handle (field) {
-  var value = getValue(field.el)
+  var value = getValue(field)
   var message = validate(field.validators, value)
   var isValid = message === null
 
@@ -138,8 +153,17 @@ function handle (field) {
   return isValid
 }
 
-function getValue (el) {
-  // TODO handle radios and checkboxes?
+function getValue (field) {
+  var el = field.el
+  var type = el.type
+  var checked
+
+  if (field.$els.length > 1 || type === 'radio' || type === 'checkbox') {
+    checked = field.$els.filter(function (index, el) {
+      return el.checked
+    })
+    return checked.length ? el.value : ''
+  }
   return el.value.trim()
 }
 
@@ -160,9 +184,7 @@ function getValidators (el, settings) {
     })
 }
 
-// Update element with classes and error messages
 function updateElements (field, message) {
-  // TODO handle groups
   var action = field.isValid ? 'removeClass' : 'addClass'
 
   field.$parent[action]('error')
@@ -10294,6 +10316,8 @@ return jQuery;
 require('../index')
 var $ = require('jquery')
 var validator = require('validator')
+
+window.$ = $
 
 $('form').validity({
   onSubmit: function (event, form) {

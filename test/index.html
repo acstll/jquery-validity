@@ -8,7 +8,8 @@
       .error select {
         border: 1px solid red;
       }
-      label.error {
+      label.error,
+      .error > label {
         color: red;
       }
       .error > small.error {
@@ -28,6 +29,41 @@
         <input type="text" name="email" required data-validators="email">
         <small class="error"></small>
       </label>
+      <label>
+        <input type="checkbox" name="tea" value="1" required>
+        Yes I would like a cup of tea
+        <small class="error"></small>
+      </label>
+      <p class="checkboxes">
+        <label>
+          <input type="checkbox" name="coffee" value="2" required>
+          Yes I would like a cup of coffee 2
+        </label>
+        <label>
+          <input type="checkbox" name="coffee" value="3" required>
+          Yes I would like a cup of coffee 3
+        </label>
+        <label>
+          <input type="checkbox" name="coffee" value="4" required>
+          Yes I would like a cup of coffee 4
+        </label>
+        <small class="error"></small>
+      </p>
+      <p class="radios">
+        <label>
+          <input type="radio" name="pepsi" value="5" required>
+          Yes I would like a cup of pepsi 2
+        </label>
+        <label>
+          <input type="radio" name="pepsi" value="6" required>
+          Yes I would like a cup of pepsi 3
+        </label>
+        <label>
+          <input type="radio" name="pepsi" value="7" required>
+          Yes I would like a cup of pepsi 4
+        </label>
+        <small class="error"></small>
+      </p>
       <label>
         Side
         <select name="side" required>
