@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>jQuery Validity Crappy Test</title>
+    <style>
+      .error input,
+      .error select {
+        border: 1px solid red;
+      }
+      label.error {
+        color: red;
+      }
+      .error > small.error {
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <form action="" novalidate="true">
+      <label>
+        Color
+        <input type="text" name="color" data-validators="color">
+        <small class="error"></small>
+      </label>
+      <label>
+        Email
+        <input type="text" name="email" required data-validators="email">
+        <small class="error"></small>
+      </label>
+      <label>
+        Side
+        <select name="side" required>
+          <option value=""></option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </label>
+      <label>
+          Notes
+        <input type="text" name="notes">
+      </label>
+      <input type="submit" value="Ok">
+    </form>
+
+    <script src="bundle.js"></script>
+  </body>
+</html>

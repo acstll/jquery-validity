@@ -1,0 +1,29 @@
+{
+  "name": "jquery-validity",
+  "version": "0.1.0",
+  "description": "Form validation jQuery plugin",
+  "keywords": [
+    "jquery-plugin",
+    "form",
+    "validation",
+    "jquery"
+  ],
+  "scripts": {
+    "test": "watchify ./test/index.js --verbose -o ./test/bundle.js"
+  },
+  "main": "index.js",
+  "peerDependencies": {
+    "jquery": "^2.1.4"
+  },
+  "devDependencies": {
+    "standard": "^5.3.1",
+    "validator": "^4.2.1",
+    "watchify": "^3.6.0",
+    "jquery": "^2.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acstll/jquery-validity.git"
+  },
+  "license": "MIT"
+}
