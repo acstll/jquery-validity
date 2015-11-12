@@ -1,13 +1,3 @@
-# required
-
-The default `required` validator implementation.
-
-**Parameters**
-
--   `message` **string** 
-
-Returns **Function** 
-
 # validity
 
 Apply validation to one or more selected form elements.
