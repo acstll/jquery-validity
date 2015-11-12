@@ -32,3 +32,6 @@ $('form').validity({
     }
   }
 })
+.on('validity.invalid', function (event, fields) {
+  console.log('Invalid', fields)
+})

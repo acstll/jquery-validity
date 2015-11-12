@@ -12,8 +12,8 @@
 
 /*
   TODO
-  - remove `onSubmit` and emit `validity.valid` and `validity.invalid` events
   - pass `name` to validator fns
+  - allow function in `parentSelector` option
   - document public and private functions
 */
 
@@ -92,14 +92,16 @@ function factory ($, window, document) {
     var handleDelayed = debounce(function (field) {
       handle(field)
     }, settings.timeout)
+    var $form = $(form)
 
-    $(form)
+    $form
       .on('submit', function onSubmit (event) {
         var firstErrorIndex = validateAll(fields)
 
         if (firstErrorIndex !== null) {
           event.preventDefault()
           fields[firstErrorIndex].el.focus()
+          $form.triggerHandler('validity.invalid', { fields: fields.slice(0) })
         } else if (typeof settings.onSubmit === 'function') {
           event.preventDefault()
           settings.onSubmit(event, form)
@@ -10345,6 +10347,9 @@ $('form').validity({
       return 'Only the three basic colors are allowed'
     }
   }
+})
+.on('validity.invalid', function (event, fields) {
+  console.log('Invalid', fields)
 })
 
 },{"../index":1,"jquery":2,"validator":3}]},{},[4]);
