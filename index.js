@@ -11,6 +11,7 @@
 /*
   TODO
   - document public and private functions
+  http://foundation.zurb.com/docs/components/abide.html
 */
 
 function factory ($, window, document) {
