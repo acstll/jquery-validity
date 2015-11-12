@@ -10,17 +10,30 @@
   }
 }(factory))
 
-/*
-  TODO
-  - document public and private functions
-*/
-
 function factory ($, window, document) {
   var fields = []
 
   // Testing
   // window.__fields = fields
 
+  /**
+   * Apply validation to one or more selected form elements.
+   *
+   * @param {Object} options
+   * @param {string} options.attributeName The attribute used on input elements
+   * to determine its validator methods
+   * @param {string} options.requiredMessage The error message for the default
+   * `required` validator
+   * @param {string} options.parentSelector The element that groups radio or
+   * checkbox type inputs and receives the error class
+   * @param {number|false} options.timeout Number of milliseconds it takes for
+   * validation to occur after the latest user input (set `false` to disable)
+   * @param {function} options.onSubmit A callback that fires on submission of
+   * the form when valid
+   * @param {boolean} options.validateOnBlur
+   * @param {Object} options.validators An object with the validator functions
+   * @returns {Object} jQuery element instance
+   */
   $.fn.validity = function (options) {
     var settings = $.extend({}, $.fn.validity.defaults, options)
 
@@ -28,10 +41,13 @@ function factory ($, window, document) {
       settings.validators.required = required(settings.requiredMessage)
     }
 
-    return this.each(function (index, form) {
-      set(form, fields, settings)
-      listen(form, fields, settings)
-    })
+    return this
+      .filter(function (index, el) {
+        return el.nodeName.toUpperCase() === 'FORM'
+      }).each(function (index, form) {
+        set(form, fields, settings)
+        listen(form, fields, settings)
+      })
   }
 
   $.fn.validity.defaults = {
@@ -44,6 +60,16 @@ function factory ($, window, document) {
     validators: {}
   }
 
+  /**
+   * Create a `field` object for every input, select or textarea
+   * element in the form and attach it to itself.
+   *
+   * @param {HTMLFormElement} form
+   * @param {array} fields An empty array to be filled with `field` objects
+   * @param {Object} settings
+   * @returns {undefined}
+   * @private
+   */
   function set (form, fields, settings) {
     $(form)
       .find('input, select, textarea')
@@ -87,6 +113,15 @@ function factory ($, window, document) {
     }
   }
 
+  /**
+   * Listen to user input and validate the form accordingly.
+   *
+   * @param {HTMLFormElement} form
+   * @param {array<field>} fields An empty array to be filled with `field` objects
+   * @param {Object} settings
+   * @returns {undefined}
+   * @private
+   */
   function listen (form, fields, settings) {
     var handleDelayed = debounce(function (field) {
       handle(field)
@@ -131,6 +166,15 @@ function factory ($, window, document) {
   }
 }
 
+/**
+ * Validate the entire form by calling {@link handle}
+ * on every field.
+ *
+ * @param {array<field>} fields
+ * @returns {number|undefined} `null` if the form is valid, otherwise the index of
+ * the first field with an error
+ * @private
+ */
 function validateAll (fields) {
   var index, isValid
   fields.forEach(handle)
@@ -143,6 +187,14 @@ function validateAll (fields) {
   return isValid ? null : index
 }
 
+/**
+ * Validate a single field. This sets the `isValid` property on the field
+ * object and calls {@link updateElements}.
+ *
+ * @param {field} field
+ * @returns {boolean} `true` if valid, `false` is not
+ * @private
+ */
 function handle (field) {
   var value = getValue(field)
   var message = validate(field, value)
@@ -154,6 +206,15 @@ function handle (field) {
   return isValid
 }
 
+/**
+ * Extract the value of a field, normally the input.value.
+ * For radio or checkbox input groups, it will return an empty string
+ * when no input is checked.
+ *
+ * @param {field} field
+ * @returns {string}
+ * @private
+ */
 function getValue (field) {
   var el = field.el
   var type = el.type
@@ -168,6 +229,15 @@ function getValue (field) {
   return el.value.trim()
 }
 
+/**
+ * Define the validator functions to be used in a field.
+ * This is used by {@link createField}
+ *
+ * @param {HTMLElement} el
+ * @param {Object} settings
+ * @returns {array<Function>} An array of validator functions
+ * @private
+ */
 function getValidators (el, settings) {
   var data = el.getAttribute(settings.attributeName) || ''
   var keys = data.split(' ')
@@ -185,6 +255,14 @@ function getValidators (el, settings) {
     })
 }
 
+/**
+ * Update the DOM of a field according to validity.
+ *
+ * @param {field} field
+ * @param {string} message The error message
+ * @returns {undefined}
+ * @private
+ */
 function updateElements (field, message) {
   var action = field.isValid ? 'removeClass' : 'addClass'
 
@@ -192,6 +270,15 @@ function updateElements (field, message) {
   field.$error.text(message || '')
 }
 
+/**
+ * Validate a single field by running all of its validator functions
+ * agaist the field’s value.
+ *
+ * @param {field} field
+ * @param {string} value
+ * @returns {undefined|string} `null` if valid, a string with error message otherwise
+ * @private
+ */
 function validate (field, value) {
   var validators = field.validators
   var result = null
@@ -208,7 +295,13 @@ function validate (field, value) {
   return result
 }
 
-// Default validator
+/**
+ * The default `required` validator implementation.
+ *
+ * @param {string} message
+ * @returns {Function}
+ * @private
+ */
 function required (message) {
   return function (value, name) {
     if (!value || value === '') {
@@ -218,6 +311,15 @@ function required (message) {
   }
 }
 
+/**
+ * Debounce utility.
+ *
+ * @param {Function} fn
+ * @param {number|false} delay
+ * @returns {Function}
+ * @author Remy Sharp
+ * @private
+ */
 function debounce (fn, delay) {
   var timer = null
 
@@ -233,7 +335,7 @@ function debounce (fn, delay) {
       fn.apply(context, args)
     }, delay)
   }
-} // Remy Sharp
+}
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"jquery":2}],2:[function(require,module,exports){

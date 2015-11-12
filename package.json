@@ -9,7 +9,9 @@
     "jquery"
   ],
   "scripts": {
-    "test": "watchify ./test/index.js --verbose -o ./test/bundle.js"
+    "test": "watchify ./test/index.js --verbose -o ./test/bundle.js",
+    "pretest": "standard index.js",
+    "docs": "documentation index.js -f md -o API.md"
   },
   "main": "index.js",
   "peerDependencies": {
