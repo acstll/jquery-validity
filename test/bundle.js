@@ -12,16 +12,14 @@
 
 /*
   TODO
-  - pass `name` to validator fns
-  - allow function in `parentSelector` option
   - document public and private functions
 */
 
 function factory ($, window, document) {
   var fields = []
 
-  // Testing (maybe expose this somehow?)
-  window.__fields = fields
+  // Testing
+  // window.__fields = fields
 
   $.fn.validity = function (options) {
     var settings = $.extend({}, $.fn.validity.defaults, options)
@@ -39,7 +37,7 @@ function factory ($, window, document) {
   $.fn.validity.defaults = {
     attributeName: 'data-validators',
     requiredMessage: 'This field is required',
-    parentSelector: 'p', // TODO allow function or string
+    parentSelector: 'p',
     timeout: 1000, // if `false`, no "live" validation
     onSubmit: null,
     validateOnBlur: true,
@@ -76,6 +74,7 @@ function factory ($, window, document) {
 
       var field = {
         el: el,
+        name: el.name,
         $els: $els, // intended for groups
         $parent: $parent,
         $error: $error,
@@ -146,7 +145,7 @@ function validateAll (fields) {
 
 function handle (field) {
   var value = getValue(field)
-  var message = validate(field.validators, value)
+  var message = validate(field, value)
   var isValid = message === null
 
   field.isValid = isValid
@@ -193,12 +192,13 @@ function updateElements (field, message) {
   field.$error.text(message || '')
 }
 
-function validate (validators, value) {
+function validate (field, value) {
+  var validators = field.validators
   var result = null
 
   if (validators && validators.length) {
     validators.some(function (fn) {
-      result = fn(value) // TODO add `name` as second param
+      result = fn(value, field.name)
       if (result !== null) {
         return true
       }
