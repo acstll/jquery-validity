@@ -117,7 +117,7 @@ function factory ($, window, document) {
    * Listen to user input and validate the form accordingly.
    *
    * @param {HTMLFormElement} form
-   * @param {array<field>} fields An empty array to be filled with `field` objects
+   * @param {array<field>} fields
    * @param {Object} settings
    * @returns {undefined}
    * @private
@@ -141,7 +141,7 @@ function factory ($, window, document) {
           settings.onSubmit(event, form)
         }
       })
-      .on('click', '[type="radio"], [type="checkbox"]', onInput)
+      .on('change', 'select, [type="radio"], [type="checkbox"], [type="file"]', onInput)
       .on('input', onInput)
 
     fields.forEach(function (field) {

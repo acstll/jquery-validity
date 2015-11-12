@@ -139,7 +139,7 @@ function factory ($, window, document) {
           settings.onSubmit(event, form)
         }
       })
-      .on('click', '[type="radio"], [type="checkbox"]', onInput)
+      .on('change', 'select, [type="radio"], [type="checkbox"], [type="file"]', onInput)
       .on('input', onInput)
 
     fields.forEach(function (field) {
