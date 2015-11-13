@@ -283,7 +283,7 @@ function validate (field, value) {
 
   if (validators && validators.length) {
     validators.some(function (fn) {
-      result = fn(value, field.name)
+      result = fn(value, field.name, field.el)
       if (result !== null) {
         return true
       }

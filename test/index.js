@@ -29,6 +29,20 @@ $('form').validity({
         return null
       }
       return 'Only the three basic colors are allowed'
+    },
+    images: function (value, name, el) {
+      var files = el.files
+      var re = /png|jpg|jpeg|gif/
+      var type
+
+      if (!files.length) {
+        return null
+      }
+      type = files[0].type
+      if (!re.test(type)) {
+        return 'No files other than images, please'
+      }
+      return null
     }
   }
 })

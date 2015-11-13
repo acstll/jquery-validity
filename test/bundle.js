@@ -285,7 +285,7 @@ function validate (field, value) {
 
   if (validators && validators.length) {
     validators.some(function (fn) {
-      result = fn(value, field.name)
+      result = fn(value, field.name, field.el)
       if (result !== null) {
         return true
       }
@@ -10447,6 +10447,20 @@ $('form').validity({
         return null
       }
       return 'Only the three basic colors are allowed'
+    },
+    images: function (value, name, el) {
+      var files = el.files
+      var re = /png|jpg|jpeg|gif/
+      var type
+
+      if (!files.length) {
+        return null
+      }
+      type = files[0].type
+      if (!re.test(type)) {
+        return 'No files other than images, please'
+      }
+      return null
     }
   }
 })
