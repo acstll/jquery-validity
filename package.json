@@ -14,9 +14,6 @@
     "docs": "documentation index.js -f md -o API.md"
   },
   "main": "index.js",
-  "peerDependencies": {
-    "jquery": "^2.1.4"
-  },
   "devDependencies": {
     "standard": "^5.3.1",
     "validator": "^4.2.1",
