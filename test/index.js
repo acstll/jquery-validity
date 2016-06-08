@@ -10,7 +10,7 @@ $('form').validity({
     setTimeout(function () {
       form.submit()
     }, 500)
-    console.log('submitting..')
+    console.log('submitting..', form)
   },
   // timeout: false,
   requiredMessage: 'This shit is required',
