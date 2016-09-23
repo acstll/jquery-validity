@@ -12,40 +12,54 @@ Using `npm`:
 npm install jquery-validity
 ```
 
-## Usage
-
-```html
-<form novalidate>
-  <label>Email
-    <input type="text" name="email" required data-validators="email">
-  </label>
-  <label>Username
-    <input type="text" name="username" required>
-  </label>
-  <input type="submit">
-</form>
-```
+Browserify and others:
 
 ```js
-require('jquery-validity')
 var $ = require('jquery')
-// Use any validation logic you like
-var validator = require('validator')
+require('jquery-validity')($)
+```
 
-$('form').validity({
-  onSubmit: function (event, form) {
-    // The form is valid, handle submission..
-    // `form.submit()`
-  },
-  validators: {
-    email: emailValidator('Please enter a valid email')
-  }
-})
+ES2015 modules:
 
-// A `validator` is a function that receives a `value`
-// and should return `null` if valid, or a message if not
+```js
+import $ from 'jquery'
+import validity from 'jquery-validity'
+
+validity($)
+```
+
+## Usage
+
+```js
+$('.my-form').validity(options)
+```
+
+### Options
+
+There are the defaults:
+
+```js
+$.fn.validity.defaults = {
+  onSubmit: null,
+  validators: {},
+  timeout: 1000, // if `false`, no "live" validation
+  validateOnBlur: true,
+  attributeName: 'data-validators',
+  errorClass: 'error',
+  parentSelector: 'p',
+  requiredMessage: 'This field is required'
+}
+```
+
+(TODO)
+
+An example of an email validator function:
+
+```js
 function emailValidator (message) {
-  return function (value, name) {
+  // A `validator` is a function that receives a `value`
+  // and should return `null` if valid, or a message if not
+  return function (value) {
     if (validator.isEmail(value)) {
       return null
     }
@@ -54,13 +68,10 @@ function emailValidator (message) {
 }
 ```
 
-## API
-
-See [API.md](https://github.com/acstll/jquery-validity/blob/master/API.md).
-
 ## TODO
 
 - Proper tests
+- Finish documentation
 - A better usage guide and examples
 
 ## License

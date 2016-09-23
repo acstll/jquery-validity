@@ -2,37 +2,16 @@
 
 (function (factory) {
   if (typeof exports === 'object') {
-    module.exports = factory(require('jquery')) // node / ES6 module
+    factory.default = factory
+    module.exports = factory
   } else if (typeof define === 'function' && define.amd) {
-    define(['jquery'], factory)                 // requirejs
+    define(['jquery'], factory)
   } else {
-    factory(window.jQuery)                      // <script> tag in HTML
+    factory(window.jQuery)
   }
 })(function ($) {
-  // Testing
-  // window.__fields = fields
-
-  /**
-   * Apply validation to one or more selected form elements.
-   *
-   * @param {Object} options
-   * @param {string} options.attributeName The attribute used on input elements
-   * to determine its validator methods
-   * @param {string} options.requiredMessage The error message for the default
-   * `required` validator
-   * @param {string} options.parentSelector The element that groups radio or
-   * checkbox type inputs and receives the error class
-   * @param {number|false} options.timeout Number of milliseconds it takes for
-   * validation to occur after the latest user input (set `false` to disable)
-   * @param {function} options.onSubmit A callback that fires on submission of
-   * the form when valid
-   * @param {boolean} options.validateOnBlur
-   * @param {Object} options.validators An object with the validator functions
-   * @returns {Object} jQuery element instance
-   */
   $.fn.validity = function (options) {
     var settings = $.extend({}, $.fn.validity.defaults, options)
-    var fields = []
 
     if (!settings.validators.required) {
       settings.validators.required = required(settings.requiredMessage)
@@ -42,8 +21,8 @@
       .filter(function (index, el) {
         return el.nodeName.toUpperCase() === 'FORM'
       }).each(function (index, form) {
-        set(form, fields, settings)
-        listen(form, fields, settings)
+        set(form, settings)
+        listen(form, settings)
       })
   }
 
@@ -61,21 +40,16 @@
   /**
    * Create a `field` object for every input, select or textarea
    * element in the form and attach it to itself.
-   *
-   * @param {HTMLFormElement} form
-   * @param {array} fields An empty array to be filled with `field` objects
-   * @param {Object} settings
-   * @returns {undefined}
-   * @private
    */
-  function set (form, fields, settings) {
+  function set (form, settings) {
+    var fields = form.__validity = []
+
     $(form)
       .find('input, select, textarea')
       .each(createField)
 
     function createField (index, el) {
-      // Skip input of type `submit`
-      if (/submit/.test(el.type)) {
+      if (/submit/.test(el.type) || /hidden/.test(el.type)) {
         return
       }
 
@@ -113,17 +87,12 @@
 
   /**
    * Listen to user input and validate the form accordingly.
-   *
-   * @param {HTMLFormElement} form
-   * @param {array<field>} fields
-   * @param {Object} settings
-   * @returns {undefined}
-   * @private
    */
-  function listen (form, fields, settings) {
+  function listen (form, settings) {
     var handleDelayed = debounce(function (field) {
       handle(field, settings)
     }, settings.timeout)
+    var fields = form.__validity
     var $form = $(form)
 
     $form
@@ -133,9 +102,6 @@
         if (firstErrorIndex !== null) {
           event.preventDefault()
           fields[firstErrorIndex].el.focus()
-          // TODO: fix Sprint.js trigger implementation:
-          //       - needs triggerHandler
-          //       - needs to accept an object/params
           $form.trigger('validity.invalid', { fields: fields.slice(0) })
         } else if (typeof settings.onSubmit === 'function') {
           event.preventDefault()
@@ -167,13 +133,8 @@
   }
 
   /**
-   * Validate the entire form by calling {@link handle}
+   * Validate the entire form by calling `handle`
    * on every field.
-   *
-   * @param {array<field>} fields
-   * @returns {number|undefined} `null` if the form is valid, otherwise the index of
-   * the first field with an error
-   * @private
    */
   function validateAll (fields, settings) {
     var index, isValid
@@ -189,11 +150,7 @@
 
   /**
    * Validate a single field. This sets the `isValid` property on the field
-   * object and calls {@link updateElements}.
-   *
-   * @param {field} field
-   * @returns {boolean} `true` if valid, `false` is not
-   * @private
+   * object and calls `updateElements`.
    */
   function handle (field, settings) {
     var value = getValue(field)
@@ -212,10 +169,6 @@
    * Extract the value of a field, normally the input.value.
    * For radio or checkbox input groups, it will return an empty string
    * when no input is checked.
-   *
-   * @param {field} field
-   * @returns {string}
-   * @private
    */
   function getValue (field) {
     var el = field.el
@@ -233,12 +186,7 @@
 
   /**
    * Define the validator functions to be used in a field.
-   * This is used by {@link createField}
-   *
-   * @param {HTMLElement} el
-   * @param {Object} settings
-   * @returns {array<Function>} An array of validator functions
-   * @private
+   * This is used by `createField`
    */
   function getValidators (el, settings) {
     var data = el.getAttribute(settings.attributeName) || ''
@@ -260,11 +208,6 @@
   /**
    * Validate a single field by running all of its validator functions
    * agaist the field’s value.
-   *
-   * @param {field} field
-   * @param {string} value
-   * @returns {undefined|string} `null` if valid, a string with error message otherwise
-   * @private
    */
   function validate (field, value) {
     var validators = field.validators
@@ -284,10 +227,6 @@
 
   /**
    * The default `required` validator implementation.
-   *
-   * @param {string} message
-   * @returns {Function}
-   * @private
    */
   function required (message) {
     return function (value, name) {
@@ -300,12 +239,7 @@
 
   /**
    * Debounce utility.
-   *
-   * @param {Function} fn
-   * @param {number|false} delay
-   * @returns {Function}
    * @author Remy Sharp
-   * @private
    */
   function debounce (fn, delay) {
     var timer = null

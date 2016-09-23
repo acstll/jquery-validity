@@ -1,7 +1,7 @@
 
-require('../index')
-var $ = require('jquery')
 var validator = require('validator')
+var $ = require('jquery')
+require('../index')($)
 
 window.$ = $
 
@@ -13,7 +13,7 @@ $('form').validity({
     console.log('submitting..', form)
   },
   // timeout: false,
-  requiredMessage: 'This shit is required',
+  requiredMessage: 'This thing is required',
   validators: {
     email: function (value) {
       if (!validator.isEmail(value)) {
