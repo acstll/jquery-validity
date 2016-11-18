@@ -40,15 +40,32 @@ There are the defaults:
 
 ```js
 $.fn.validity.defaults = {
-  onSubmit: null,
-  validators: {},
-  timeout: 1000, // if `false`, no "live" validation
-  validateOnBlur: true,
   attributeName: 'data-validators',
   errorClass: 'error',
+  focusOnFirstError: true,
+  onSubmit: null,
   parentSelector: 'p',
-  requiredMessage: 'This field is required'
+  requiredMessage: 'This field is required',
+  timeout: 1000, // if `false`, no "live" validation
+  validateOnBlur: true,
+  validators: {}
 }
+```
+
+### Events
+
+```js
+$form.on('validity.invalid', {
+  fields,
+  firstErrorField,
+  form,
+  submitEvent // original submit event
+})
+
+$form.on('validity.valid', {
+  form,
+  submitEvent
+})
 ```
 
 (TODO)

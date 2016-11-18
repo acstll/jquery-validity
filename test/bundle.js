@@ -29,11 +29,12 @@
 
   $.fn.validity.defaults = {
     attributeName: 'data-validators',
-    requiredMessage: 'This field is required',
-    parentSelector: 'p',
     errorClass: 'error',
-    timeout: 1000, // if `false`, no "live" validation
+    focusOnFirstError: true,
     onSubmit: null,
+    parentSelector: 'p',
+    requiredMessage: 'This field is required',
+    timeout: 1000, // if `false`, no "live" validation
     validateOnBlur: true,
     validators: {}
   }
@@ -72,13 +73,14 @@
       }
 
       var field = {
-        el: el,
-        name: el.name,
         $els: $els, // intended for groups
         $parent: $parent,
         $error: $error,
-        validators: getValidators(el, settings),
-        isValid: true
+        name: el.name,
+        el: el,
+        errorMessage: '',
+        isValid: true,
+        validators: getValidators(el, settings)
       }
 
       el.__validity = field
@@ -99,14 +101,29 @@
     $form
       .on('submit', function onSubmit (event) {
         var firstErrorIndex = validateAll(fields, settings)
+        var firstErrorField
 
         if (firstErrorIndex !== null) {
           event.preventDefault()
-          fields[firstErrorIndex].el.focus()
-          $form.trigger('validity.invalid', { fields: fields.slice(0) })
-        } else if (typeof settings.onSubmit === 'function') {
-          event.preventDefault()
-          settings.onSubmit(event, form)
+          firstErrorField = fields[firstErrorIndex]
+          if (settings.focusOnFirstError) {
+            firstErrorField.el.focus()
+          }
+          $form.trigger('validity.invalid', {
+            fields: fields.slice(0),
+            firstErrorField: firstErrorField,
+            form: form,
+            submitEvent: event
+          })
+        } else {
+          if (typeof settings.onSubmit === 'function') {
+            event.preventDefault()
+            settings.onSubmit(event, form)
+          }
+          $form.trigger('validity.valid', {
+            form: form,
+            submitEvent: event
+          })
         }
       })
       .on('change', 'select, [type="radio"], [type="checkbox"], [type="file"]', onInput)
@@ -162,6 +179,7 @@
     field.isValid = isValid
     field.$parent[action](settings.errorClass)
     field.$error.text(message || '')
+    field.errorMessage = message || ''
 
     return isValid
   }
@@ -11653,13 +11671,14 @@ require('../index')($)
 window.$ = $
 
 $('form').validity({
-  onSubmit: function (event, form) {
+  /*onSubmit: function (event, form) {
     setTimeout(function () {
       form.submit()
     }, 500)
     console.log('submitting..', form)
-  },
+  },*/
   // timeout: false,
+  focusOnFirstError: false,
   requiredMessage: 'This thing is required',
   validators: {
     email: function (value) {
@@ -11693,8 +11712,14 @@ $('form').validity({
     }
   }
 })
-.on('validity.invalid', function (event, fields) {
-  console.log('Invalid', fields)
+.on('validity.invalid', function (event, data) {
+  console.log('--invalid')
+  console.log(data.firstErrorField)
+  console.log(data.fields)
+})
+.on('validity.valid', function (event, data) {
+  data.submitEvent.preventDefault()
+  console.log('yep')
 })
 
 },{"../index":1,"jquery":3,"validator":5}]},{},[6]);

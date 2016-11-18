@@ -6,13 +6,14 @@ require('../index')($)
 window.$ = $
 
 $('form').validity({
-  onSubmit: function (event, form) {
+  /*onSubmit: function (event, form) {
     setTimeout(function () {
       form.submit()
     }, 500)
     console.log('submitting..', form)
-  },
+  },*/
   // timeout: false,
+  focusOnFirstError: false,
   requiredMessage: 'This thing is required',
   validators: {
     email: function (value) {
@@ -46,6 +47,12 @@ $('form').validity({
     }
   }
 })
-.on('validity.invalid', function (event, fields) {
-  console.log('Invalid', fields)
+.on('validity.invalid', function (event, data) {
+  console.log('--invalid')
+  console.log(data.firstErrorField)
+  console.log(data.fields)
+})
+.on('validity.valid', function (event, data) {
+  data.submitEvent.preventDefault()
+  console.log('yep')
 })
