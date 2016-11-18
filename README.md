@@ -36,7 +36,7 @@ $('.my-form').validity(options)
 
 ### Options
 
-There are the defaults:
+These are the defaults:
 
 ```js
 $.fn.validity.defaults = {
